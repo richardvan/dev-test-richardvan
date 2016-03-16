@@ -42,8 +42,8 @@ app.get('/', function (req, res, next) {
             
          
             var myUrl = "http://mobile-test-api.influentialdev.com/stream?"                
-                                             + "lat=" + payload.longitute + "&"
-                                             + "lng=" + payload.latitute;
+                                             + "lat=" + JSON.stringify(payload.longitute) + "&"
+                                             + "lng=" + JSON.stringify(payload.latitute);
 
             console.log("** url: " + myUrl);
             console.log("** about to make http request to url specified stream");

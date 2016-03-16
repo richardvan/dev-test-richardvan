@@ -10,6 +10,7 @@
     "morgan": "^1.7.0",
     "request": "^2.69.0",
     "request-ip": "^1.2.2",
+    "satelize": "^0.2.0",
     "stylus": "^0.54.2"
   },
   "devDependencies": {},

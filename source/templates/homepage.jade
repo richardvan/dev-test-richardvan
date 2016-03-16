@@ -1,0 +1,27 @@
+extend index
+
+
+block contentFromExtendedPage
+  
+  div
+    p Calling the thing now
+
+    script(src='/javascripts/jquery-1.12.1.min.js')
+    script.
+      //- get geolocation of browser on client side using javascript below
+      function showPosition(position) {
+        console.log('geolocation is working - success callback')
+        console.log('- client side lat: ' + position.coords.latitude);
+        console.log('- client side lng: ' + position.coords.longitude);
+      };
+      if (navigator.geolocation)
+        console.log('geolocation is working, calling getCurrentPosition')
+        navigator.geolocation.getCurrentPosition(showPosition);
+
+        var localJSON
+        $.getJSON('/stream?lat=40.748817&lng=-73.985428', function(json_data){
+          localJSON = JSON.stringify(json_data);
+          console.log("localJSON worked");
+        });
+  
+    

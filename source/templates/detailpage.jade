@@ -1,0 +1,29 @@
+extend index
+
+block contentFromExtendedPage
+
+  div(style="width:100%; display: inline-block")
+    img( src= instagramMediaObjectDetail_fromNode.images.standard_resolution.url )
+  
+  br
+  br
+  p More Information from User
+
+
+  div(style="width:100%; display: inline-block")
+    img( src= instagramMediaObjectDetail_fromNode.user.profile_picture )
+  
+  
+  div
+  
+  
+    table(style="width:100%")
+      tr
+        td(style="width:30%") Username
+        td(style="width:70%")= instagramMediaObjectDetail_fromNode.user.username
+      tr
+        td Full Name
+        td= instagramMediaObjectDetail_fromNode.user.full_name  
+      tr
+        td Likes
+        td= instagramMediaObjectDetail_fromNode.likes.count

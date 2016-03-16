@@ -1,0 +1,15 @@
+doctype html
+html
+  head
+    link(rel='stylesheet', href='/css/index.css')
+    title= title_fromNode
+    
+  
+    
+  body
+    .header
+      h1.page-title= title_fromNode
+    
+    .main-content
+      block contentFromExtendedPage
+

@@ -36,14 +36,16 @@ app.get('/', function (req, res, next) {
         // or ::1, ::ffff:127.0.0.1 if you're using IPv6 
 
         // at this point we have the ip, use it in a location service to get lat lng
-        satelize.satelize({ip:'46.19.37.108'}, function(err, payload) {
+//        satelize.satelize({ip:'46.19.37.108'}, function(err, payload) {                    // ip of amsterdam i think
+        satelize.satelize({ip:user.ip}, function(err, payload) {                    // ip of amsterdam i think
             console.log ("satelize err: " + err);
             console.log ("satelize payload: " + JSON.stringify(payload));
-            
+            console.log ("satelize longitude: " + payload['longitude']);
+            console.log ("satelize latitude: " + payload['latitude']);
          
             var myUrl = "http://mobile-test-api.influentialdev.com/stream?"                
-                                             + "lat=" + JSON.stringify(payload.longitute) + "&"
-                                             + "lng=" + JSON.stringify(payload.latitute);
+                                             + "lat=" + payload['longitude'] + "&"
+                                             + "lng=" + payload['latitude'];
 
             console.log("** url: " + myUrl);
             console.log("** about to make http request to url specified stream");

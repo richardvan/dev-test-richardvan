@@ -2,12 +2,16 @@ extend index
 
 block contentFromExtendedPage
 
-  div(style="width:100%; display: inline-block")
-    img( src= instagramMediaObjectDetail_fromNode.images.standard_resolution.url )
-  
-  br
-  br
-  p More Information from User
+  div
+    div(align="right")
+      span Likes: 
+      span= instagramMediaObjectDetail_fromNode.likes.count
+    img(style="width:100%; display: inline-block" src= instagramMediaObjectDetail_fromNode.images.standard_resolution.url )
+    div(align="right")
+      span Picture Taken @
+      p= moment_FromNode(parseFloat(instagramMediaObjectDetail_fromNode.created_time) * 1000).format('MM/DD/YYYY HH:mm:ss')
+      
+  p <strong>More Information from User </strong>
 
 
   div(style="width:100%; display: inline-block")
@@ -24,6 +28,3 @@ block contentFromExtendedPage
       tr
         td Full Name
         td= instagramMediaObjectDetail_fromNode.user.full_name  
-      tr
-        td Likes
-        td= instagramMediaObjectDetail_fromNode.likes.count

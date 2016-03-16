@@ -44,8 +44,8 @@ app.get('/', function (req, res, next) {
             console.log ("satelize latitude: " + payload['latitude']);
          
             var myUrl = "http://mobile-test-api.influentialdev.com/stream?"                
-                                             + "lat=" + payload['longitude'] + "&"
-                                             + "lng=" + payload['latitude'];
+                                             + "lat=" + payload['latitude'] + "&"
+                                             + "lng=" + payload['longitude'];
 
             console.log("** url: " + myUrl);
             console.log("** about to make http request to url specified stream");

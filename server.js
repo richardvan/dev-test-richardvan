@@ -2,25 +2,21 @@ var express = require('express'),
     app = express(),
     request = require('request'),
     templateHomePage = require('jade').compileFile(__dirname + '/source/templates/homepage.jade'),
-    templateListPage = require('jade').compileFile(__dirname + '/source/templates/listpage.jade'),
-    templateDetailPage = require('jade').compileFile(__dirname + '/source/templates/detailpage.jade')
+    templateDetailPage = require('jade').compileFile(__dirname + '/source/templates/detailpage.jade'),
+    satelize = require('satelize');
 
-app.use(express.static(__dirname + '/static'))
+app.use(express.static(__dirname + '/static'))                      // because we're using stylus, 
+                                                                    //this is where .styl file is compiled to .css
 app.set('view engine', 'ejs');
-app.all('/*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-});
+
 
 
 app.get('/', function (req, res, next) {
 
-    console.log("******** get / call");
+//    console.log("******** get / call");
     try {
         
-        
+        // grab user information (too much, just interested in ip)
         var user = {
             agent: req.headers['user-agent'], // User Agent we get from headers
             referrer: req.headers['referrer'], //  Likewise for referrer
@@ -34,23 +30,82 @@ app.get('/', function (req, res, next) {
             }
           };
         
+        // SAVE FOR DEBUG
+                console.log("ip: " + user.ip);
         // on localhost you'll see 127.0.0.1 if you're using IPv4  
         // or ::1, ::ffff:127.0.0.1 if you're using IPv6 
-        console.log("ip: " + JSON.stringify(user));
 
-        var html = templateHomePage({
-            title_fromNode: 'Home'
-        })
+        // at this point we have the ip, use it in a location service to get lat lng
+        satelize.satelize({ip:'46.19.37.108'}, function(err, payload) {
+            console.log ("satelize err: " + err);
+            console.log ("satelize payload: " + JSON.stringify(payload));
+            
+         
+            var myUrl = "http://mobile-test-api.influentialdev.com/stream?"                
+                                             + "lat=" + payload.longitute + "&"
+                                             + "lng=" + payload.latitute;
+
+            console.log("** url: " + myUrl);
+            console.log("** about to make http request to url specified stream");
+
+            request({
+                url: myUrl,
+            }, function (err, response, body) {
+
+                console.log("* callback for external api call");
+                // <------------------ CallBack for consuming external api 
+                //                          //   /stream
+                //   returns list of Instagram Media Objects
+                //   [{
+                //     id
+                //     image
+                //          url
+                //          width
+                //          height
+                //   }]
+                // <----------------------------------------------------------
+
+                if (err) {
+                    console.log(err);
+                    return;
+                }
 
 
-        res.send(html)
+                // parse callback value 
+                // Apply the jade template to each object and generate the html for each object
+                // render Jade templated page.
+
+
+
+                //            console.log("<---- Get response body: " + response.body);
+                var html = templateHomePage({
+                    tabTitle_fromNode: 'Moments',
+                    headerTitle_fromNode: 'Moments Happening Near You',
+                    instagramMediaObjects_fromNode: JSON.parse(response.body) // parse response into JSON 
+                        // and apply it to the jade template
+                })
+
+                console.log("* end of callbackfddd fd");
+                res.send(html);
+    //            res.send(html);
+
+                // DEBUG: render the json for the callback value
+                //            res.send(response.body);
+                //            console.log("<---- Get response statusCode: " + response.statusCode);
+                //            console.log("<---- Get response body: " + response.body);
+            });
+        });
+        
+        
+
+//        res.send(html)
     } catch (e) {
         next(e)
     }
 })
 
 
-
+// KEEP FOR NOW, but don't need this
 app.get('/stream', function (req, res, next) {
 
     console.log("******** get /stream call");
@@ -101,7 +156,8 @@ app.get('/stream', function (req, res, next) {
 
             //            console.log("<---- Get response body: " + response.body);
             var html = templateListPage({
-                title_fromNode: 'Pictures Happening Near You',
+                tabTitle_fromNode: 'Moments Detail',
+                headerTitle_fromNode: 'Details of the Moment',
                 instagramMediaObjects_fromNode: JSON.parse(response.body) // parse response into JSON 
                     // and apply it to the jade template
             })
@@ -123,18 +179,18 @@ app.get('/stream', function (req, res, next) {
     }
 })
 
-app.get('/stream/:id', function (req, res, next) {
+app.get('/:id', function (req, res, next) {
     // get the parameter from 
     //      req.params.id
 
-    console.log("******** get /stream/:id call");
+    console.log("******** get /:id call");
 
     try {
 
-        // use params for when its something like http://localhost:3000/stream/22
+        // use params for when its something like http://localhost:3000/22
 
         var myExternalURL_getDetail = "http://mobile-test-api.influentialdev.com/stream/" + req.params.id;
-        console.log("** about to make http request to url /stream/:id");
+        console.log("** about to make http request to url /:id");
         console.log("                                 :" + myExternalURL_getDetail);
         //
         request({
@@ -207,7 +263,8 @@ app.get('/stream/:id', function (req, res, next) {
 
 
             var html = templateDetailPage({
-                title_fromNode: 'Picture Details',
+                tabTitle_fromNode: 'Moments Detail',
+                headerTitle_fromNode: 'Details of the Moment',
                 instagramMediaObjectDetail_fromNode: JSON.parse(response.body) // parse response into JSON 
                     // and apply it to the jade template
             })
@@ -226,5 +283,5 @@ app.get('/stream/:id', function (req, res, next) {
 })
 
 app.listen(process.env.PORT || 3000, function () {
-    console.log('Listening on http://localhost:' + (process.env.PORT || 3000))
+    console.log('Listening on port' + (process.env.PORT || 3000))
 })
